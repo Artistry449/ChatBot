@@ -7,38 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model cars {
-  brand String? @db.VarChar(255)
-  model String? @db.VarChar(255)
-  year  Int?
-
-  @@ignore
-}
-
-model question {
-  id       Int     @id @default(autoincrement())
-  question String?
-  topic_id Int?
-  topic    topic?  @relation(fields: [topic_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
 model answer {
-  id          Int     @id @default(autoincrement())
-  answer      String?
-  question_id Int?
+  id             Int     @id @default(autoincrement())
+  answer_content String?
+  choice_id      Int?
 }
 
-model topic {
-  id       Int        @id @default(autoincrement())
-  topic    String?
-  title_id Int?
-  question question[]
-  title    title?     @relation(fields: [title_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model title {
-  id    Int     @id @default(autoincrement())
-  title String?
-  topic topic[]
+model choice {
+  id             Int     @id @default(autoincrement())
+  choice_content String?
+  parent_id      Int?
 }
