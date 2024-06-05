@@ -4,6 +4,8 @@ const router = express.Router();
 
 const choiceController = require("../controllers/choiceController");
 
+router.param("id", choiceController.checkID);
+
 router.route("/")
     .get(choiceController.getChoices)
     .post(choiceController.createChoice);
