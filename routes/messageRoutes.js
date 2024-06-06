@@ -5,6 +5,6 @@ const messageController = require("./../controllers/messageController");
 const router = express.Router();
 
 router.route("/")
-    .post(messageController.createChannel);
+    .get(messageController.createChannel);
 
 module.exports = router;

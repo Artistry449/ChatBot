@@ -4,6 +4,8 @@ const morgan = require("morgan");
 const choiceRouter = require("./routes/choiceRoutes");
 const answerRouter = require("./routes/answerRoutes");
 const userRouter = require("./routes/userRoutes");
+
+const controller = require("./controllers/choiceController");
 // const messageRouter = require("./routes/messageRoutes");
 
 const app = express();
@@ -27,16 +29,11 @@ const app_id = "1315407";
 
 const client = StreamChat.getInstance(api_key, secret, app_id);
 
-const createChannel = async () => {
-
-};
-
-app.post("/webhook", async (req, res) => {
-    // await createChannel();
+app.post("/webhook/:id?", async (req, res) => {
 
     const channel = client.channel("messaging", {
         members: ["limebot", "1"],
-        created_by_id: "limebot" // specifying the bot user who is creating the channel
+        created_by_id: "limebot"
     });
 
     try {
@@ -50,16 +47,21 @@ app.post("/webhook", async (req, res) => {
 
     const state = await channel.watch();
 
+
     const message = await channel.sendMessage({
         text: "ochjinuuuuuuu",
         attachments: [],
         user_id: "limebot"
     });
 
-    res.status(200).json({
-        message
-    })
+    console.log(state.messages[state.messages.length - 1].text);
 
+    console.log(":::::::", req.params.id)
+
+    if (req.params.id && req.body.type === "message.new") {
+        const choice = await controller.getChoice(req.params.id);
+        res.status(200).json(choice);
+    }
 });
 
 // Uncomment if token generation is needed
