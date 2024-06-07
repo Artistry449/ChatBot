@@ -96,7 +96,7 @@ exports.updateAnswer = async (req, res) => {
 }
 
 exports.deleteAnswer = async (req, res) => {
-    const id = parseInt(req.params.id, 10); // Ensure the id is an integer
+    const id = parseInt(req.params.id, 10);
 
     try {
         const answer = await prisma.answer.delete({
@@ -105,7 +105,7 @@ exports.deleteAnswer = async (req, res) => {
 
         return res.status(200).json({
             status: "success",
-            message: `${id} тай хариулт устгагдсан`,
+            message: `${id} id тай хариулт устгагдсан`,
             data: answer
         });
     } catch (error) {
