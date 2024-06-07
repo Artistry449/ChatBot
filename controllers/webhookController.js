@@ -53,15 +53,15 @@ exports.webhookHandler = async (req, res) => {
     const parent_id = req.params.id;
     // CREATE CHANNEL
     // const channel = await createChannel();
-    const channel = await joinChannel("SERVER_TEST_HHE");
+    const channel = await joinChannel("SERVER_TEST_HHE"); // odoohondoo channel_id ni static
     // WATCH CHANNEL
     const state = await watchChannel(channel);
 
     // CHECKING IF EVENT IS "MESSAGE.NEW" AND ID IS PROVIDED
-    if (parent_id && req.body.type === "message.new") {
+    if (parent_id && req.body.type === "message.new") { //odoohondoo urgelj "message.new" bn gj bodson
         let choice = await controller.getChoice(parent_id);
 
-        // CHOICE Байхгүй үед ANSWER table-ээс үр дүн буцаана
+        //--- CHOICE байхгүй үед answer буцаана ---
         if (choice.length === 0) {
             const answer = await answerController.getAnswer(parent_id);
             return res.status(200).json({
@@ -71,14 +71,13 @@ exports.webhookHandler = async (req, res) => {
                 }
             });
         }
-        console.log(choice);
 
         // SENDING MESSAGE TO USER FROM DATABASE
         for (let i = 0; i < choice.length; i++) {
             const message = await sendMessage(channel, choice[i].choice_content, [], "limebot");
         }
 
-        // CHOICE байгаа үед choice буцаана
+        //--- CHOICE байгаа үед choice буцаана ---
         return res.status(200).json({
             status: "success",
             data: {
