@@ -62,9 +62,9 @@ exports.createChoice = async (req, res) => {
 // }
 exports.getChoice = async (id) => {
     // const id = req.params.id;
-    const choice = await prisma.choice.findUnique({
+    const choice = await prisma.choice.findMany({
         where: {
-            id: Number(id)
+            parent_id: Number(id) || null
         }
     })
     return choice;

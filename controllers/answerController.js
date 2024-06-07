@@ -21,7 +21,7 @@ exports.getAnswers = async (req, res) => {
 };
 
 exports.createAnswer = async (req, res) => {
-    const {answer_content , choice_id } = req.body;
+    const { answer_content, choice_id } = req.body;
 
     try {
         const answer = await prisma.answer.create({
@@ -34,7 +34,7 @@ exports.createAnswer = async (req, res) => {
             status: "success",
             data: { answer }
         })
-    } catch ( error ) {
+    } catch (error) {
         console.error(`Хариулт үүсгэхэд алдаа гарлаа ${error}`);
         return res.status(500).json({
             status: "error",
@@ -45,28 +45,51 @@ exports.createAnswer = async (req, res) => {
     }
 }
 
-exports.getAnswer = async (req, res) => {
-    const id = parseInt(req.params.id);
+// exports.getAnswer = async (req, res) => {
+//     const id = parseInt(req.params.id);
+
+//     try {
+//         const answers = await prisma.answer.findFirst({
+//             where : {
+//                 id: id
+//             }
+//         });
+//         return res.status(200).json({
+//             status: "success",
+//             data: answers
+//         });
+//     } catch (error) {
+//         console.error("Хариултыг авахад алдаа гарлаа:", error);
+//         return res.status(500).json({
+//             status: "error",
+//             message: "Хариултыг татах үед алдаа гарлаа"
+//         });
+//     } finally {
+//         await prisma.$disconnect();
+//     }
+// }
+exports.getAnswer = async (id) => {
+    // console.log("HHS");
 
     try {
-        const answers = await prisma.answer.findFirst({
-            where : {
-                id: id
+        const answer = await prisma.answer.findFirst({
+            where: {
+                choice_id: Number(id)
             }
         });
-        return res.status(200).json({
-            status: "success",
-            data: answers
-        });
+
+        // console.log("--------")
+        // console.log(answer)
+        return answer;
+
     } catch (error) {
         console.error("Хариултыг авахад алдаа гарлаа:", error);
-        return res.status(500).json({
-            status: "error",
-            message: "Хариултыг татах үед алдаа гарлаа"
-        });
+        return error;
+
     } finally {
         await prisma.$disconnect();
     }
+
 }
 
 exports.updateAnswer = async (req, res) => {
@@ -75,10 +98,10 @@ exports.updateAnswer = async (req, res) => {
 
     try {
         const answer = await prisma.answer.update({
-            where : {
+            where: {
                 id: id
             },
-            data: {answer_content: new_answer_content}
+            data: { answer_content: new_answer_content }
         });
         return res.status(200).json({
             status: "success",
