@@ -60,6 +60,7 @@ exports.createChoice = async (req, res) => {
 //         }
 //     });
 // }
+
 exports.getChoice = async (id) => {
     // const id = req.params.id;
     const choice = await prisma.choice.findMany({
@@ -112,4 +113,14 @@ exports.deleteChoice = async (req, res) => {
         status: "success",
         data: deletedChoice
     });
+}
+
+// Серверээс тухайн child-ийн parent элементийн контентийг авах
+exports.getParentChoice = async (id) => {
+    const choice = await prisma.choice.findUnique({
+        where: {
+            id: Number(id) || null
+        }
+    })
+    return choice;
 }
