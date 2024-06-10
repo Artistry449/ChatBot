@@ -51,39 +51,32 @@ const sendMessage = async (channel, text, attachments, user_id) => {
 }
 
 exports.webhookHandler = async (req, res) => {
-    const parent_id = req.params.id;
-    // CREATE CHANNEL
-    // const channel = await createChannel();
-    const channel = await joinChannel("SERVER_TEST_HHE"); // odoohondoo channel_id ni static
-    // WATCH CHANNEL
-    const state = await watchChannel(channel);
+    const choice_id = Number(req.body.message.choice_id);
+    const channel_id = req.body.channel_id;
 
-    // CHECKING IF EVENT IS "MESSAGE.NEW" AND ID IS PROVIDED
-    if (parent_id && req.body.type === "message.new") { //odoohondoo urgelj "message.new" bn gj bodson
-        let choice = await controller.getChoice(parent_id);
+    const channel = await joinChannel(`${channel_id}`);
 
-        //--- CHOICE байхгүй үед answer буцаана ---
-        if (choice.length === 0) {
-            const answer = await answerController.getAnswer(parent_id);
-            return res.status(200).json({
-                status: "success",
-                data: {
-                    answer: answer
-                }
-            });
-        }
+    // // DO NOT UNCOMMENT UNLESS YOU WANT POWER
+    // await channel.addMembers([{
+    //     user_id: 'limebot',
+    // }]);
 
-        // Серверээс мессэж илгээх
-        for (let i = 0; i < choice.length; i++) {
-            const message = await sendMessage(channel, choice[i].choice_content, [], "limebot");
-        }
-
-        //--- CHOICE байгаа үед choice буцаана ---
-        return res.status(200).json({
-            status: "success",
-            data: {
-                choice: choice
+    await watchChannel(channel).then(async () => {
+        if (req.body.user.id !== "limebot" && req.body.type === "message.new") {
+            let choice = await controller.getChoice(choice_id);
+            if (choice.length === 0) {
+                choice = await answerController.getAnswer(choice_id);
             }
-        });
-    }
+            else {
+                const parent_content = await controller.getParentChoice(choice_id);
+                choice.push(parent_content);
+                sendMessage(channel, JSON.stringify(choice), [
+                    { bot_type: "limebot" },
+                ], "limebot");
+            }
+        };
+    })
+    return res.status(200).json({
+        status: "success"
+    });
 }
