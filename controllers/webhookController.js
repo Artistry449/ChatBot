@@ -28,17 +28,18 @@ const answerController = require("./answerController");
 //     return channel;
 // }
 
+// ID-аар нь channel руу орох
 const joinChannel = async (id) => {
     const channel = client.channel("messaging", id);
     return channel;
 }
-
+// Watch channel
 const watchChannel = async (channel) => {
     const state = await channel.watch();
 
     return state;
 }
-
+// Серверээс мессэж илгээх функц
 const sendMessage = async (channel, text, attachments, user_id) => {
     const message = await channel.sendMessage({
         text: text,
@@ -72,7 +73,7 @@ exports.webhookHandler = async (req, res) => {
             });
         }
 
-        // SENDING MESSAGE TO USER FROM DATABASE
+        // Серверээс мессэж илгээх
         for (let i = 0; i < choice.length; i++) {
             const message = await sendMessage(channel, choice[i].choice_content, [], "limebot");
         }
