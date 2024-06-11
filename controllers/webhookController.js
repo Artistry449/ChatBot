@@ -92,6 +92,11 @@ exports.webhookHandler = async (req, res) => {
                 let isValid = checkID(choice_id);
 
                 if (isValid) {
+                    if (choice_id === 1) {
+                        sendMessage(channel, "Сайн байна уу, LIME оператор удахгүй таньтай холбогдох болно. Та хэлэх зүйлээ үлдээнэ үү.", [
+                            { bot_type: "limebot" },
+                        ], "limebot");
+                    }
                     // Ирсэн id-ийн харгалзах choice-ийг хайх
                     let choice = await controller.getChoice(choice_id);
                     // Хэрвээ хэрэглэгчийн сонгосон id-тай choice олдохгүй бол answer хүснэгтээс хайна
