@@ -4,7 +4,7 @@ const webhookController = require("./../controllers/webhookController");
 
 const router = express.Router();
 
-router.route("/:id?")
+router.route("/")
     .post(webhookController.webhookHandler);
 
 module.exports = router;

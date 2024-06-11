@@ -1,9 +1,9 @@
 const express = require("express");
 const morgan = require("morgan");
 
-const choiceRouter = require("./routes/choiceRoutes");
-const answerRouter = require("./routes/answerRoutes");
-const userRouter = require("./routes/userRoutes");
+// const choiceRouter = require("./routes/choiceRoutes");
+// const answerRouter = require("./routes/answerRoutes");
+// const userRouter = require("./routes/userRoutes");
 const webhookRouter = require("./routes/webhookRoutes");
 
 const app = express();
@@ -15,10 +15,9 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.json());
 
 // ROUTES
-app.use("/api/v1/choice", choiceRouter);
-app.use("/api/v1/answer", answerRouter);
-app.use("/api/v1/user", userRouter);
-
+// app.use("/api/v1/choice", choiceRouter);
+// app.use("/api/v1/answer", answerRouter);
+// app.use("/api/v1/user", userRouter);
 app.use("/webhook", webhookRouter);
 
 // Uncomment if token generation is needed

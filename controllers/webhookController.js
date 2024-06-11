@@ -92,8 +92,6 @@ exports.webhookHandler = async (req, res) => {
                 let isValid = checkID(choice_id);
 
                 if (isValid) {
-                    console.log("ihujknewfsdjinkwdqas");
-
                     // Ирсэн id-ийн харгалзах choice-ийг хайх
                     let choice = await controller.getChoice(choice_id);
                     // Хэрвээ хэрэглэгчийн сонгосон id-тай choice олдохгүй бол answer хүснэгтээс хайна
@@ -106,6 +104,7 @@ exports.webhookHandler = async (req, res) => {
                                 message: "Not Found"
                             });
                         }
+                        // Олдсон үр дүнгийн сүүлд нь эцэг элементийг нь явуулах
                         const parent_content = await controller.getParentChoice(choice_id);
                         let result = [];
                         result.push(choice);
@@ -127,6 +126,9 @@ exports.webhookHandler = async (req, res) => {
                     sendMessage(channel, JSON.stringify(choice), [
                         { bot_type: "limebot" },
                     ], "limebot");
+                    return res.status(200).json({
+                        status: "success"
+                    });
                 };
             }
             else {
@@ -137,5 +139,4 @@ exports.webhookHandler = async (req, res) => {
             }
         });
     }
-    return res.status(200).json();
 }

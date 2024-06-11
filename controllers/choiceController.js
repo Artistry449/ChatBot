@@ -2,8 +2,6 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.checkID = async (req, res, next, val) => {
-    console.log("AAA")
-    console.log("val:::", val);
 
     if (typeof (val * 1) !== Number) {
         return res.status(400).json({
@@ -78,8 +76,6 @@ exports.getChoice = async (id) => {
             parent_id: Number(id)
         }
     });
-    console.log("---------")
-    console.log(choice);
     return choice;
 }
 
