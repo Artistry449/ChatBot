@@ -2,18 +2,28 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.checkID = async (req, res, next, val) => {
-    const choice = await prisma.choice.findUnique({
-        where: {
-            id: Number(val)
-        }
-    });
+    console.log("AAA")
+    console.log("val:::", val);
 
-    if (!choice) {
-        return res.status(404).json({
+    if (typeof (val * 1) !== Number) {
+        return res.status(400).json({
             status: "fail",
             message: "Invalid id"
         });
     }
+
+    // const choice = await prisma.choice.findUnique({
+    //     where: {
+    //         id: Number(val)
+    //     }
+    // });
+
+    // if (!choice) {
+    //     return res.status(404).json({
+    //         status: "fail",
+    //         message: "Invalid id"
+    //     });
+    // }
     next();
 }
 
@@ -65,9 +75,11 @@ exports.getChoice = async (id) => {
     // const id = req.params.id;
     const choice = await prisma.choice.findMany({
         where: {
-            parent_id: Number(id) || null
+            parent_id: Number(id)
         }
-    })
+    });
+    console.log("---------")
+    console.log(choice);
     return choice;
 }
 
@@ -119,8 +131,8 @@ exports.deleteChoice = async (req, res) => {
 exports.getParentChoice = async (id) => {
     const choice = await prisma.choice.findUnique({
         where: {
-            id: Number(id) || null
+            id: Number(id)
         }
-    })
+    });
     return choice;
 }

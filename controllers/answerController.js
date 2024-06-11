@@ -71,6 +71,7 @@ exports.createAnswer = async (req, res) => {
 exports.getAnswer = async (id) => {
     // console.log("HHS");
 
+    console.log(id);
     try {
         const answer = await prisma.answer.findFirst({
             where: {
