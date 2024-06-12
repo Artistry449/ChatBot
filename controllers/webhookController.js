@@ -61,6 +61,8 @@ exports.webhookHandler = async (req, res) => {
     let isBotIncluded = false;
     const members = req.body.members;
 
+    // console.log(req.body)
+
     for (let i = 0; i < members.length; i++) {
         if (members[i].user_id === "limebot") {
             isBotIncluded = true;
@@ -135,6 +137,10 @@ exports.webhookHandler = async (req, res) => {
                         status: "success"
                     });
                 };
+                return res.status(404).json({
+                    status: "fail",
+                    message: "Invalid id"
+                });
             }
             else {
                 return res.status(400).json({
