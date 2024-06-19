@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.json());
 
 // ROUTES
-// app.use("/api/v1/choice", choiceRouter);
+app.use("/api/v1/choice", choiceRouter);
 // app.use("/api/v1/answer", answerRouter);
 // app.use("/api/v1/rating", ratingRouter)
 // app.use("/api/v1/user", userRouter);

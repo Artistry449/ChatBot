@@ -113,7 +113,7 @@ exports.webhookHandler = async (req, res) => {
                         // Хэрвээ хэрэглэгчийн сонгосон id-тай choice олдохгүй бол answer хүснэгтээс хайна
                         // console.log("1.--------------")
                         // console.log(choice);
-                        if (choice == false) {
+                        if (choice.children == false) {
                             choice = await answerController.getAnswer(choice_id);
 
                             // Answer хүснэгтээс мөн олдохгүй бол 404 буцаах
