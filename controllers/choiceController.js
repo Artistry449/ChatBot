@@ -36,6 +36,7 @@ exports.getChoices = async (req, res) => {
     });
 }
 
+
 exports.createChoice = async (req, res) => {
     const { choice_content, parent_id } = req.body;
 
@@ -69,14 +70,45 @@ exports.createChoice = async (req, res) => {
 //     });
 // }
 
+// --Old version
+// exports.getChoice = async (id) => {
+//     // const id = req.params.id;
+//     const choice = await prisma.choice.findMany({
+//         where: {
+//             parent_id: Number(id)
+//         }
+//     });
+//     return choice;
+// }
+
 exports.getChoice = async (id) => {
     // const id = req.params.id;
-    const choice = await prisma.choice.findMany({
-        where: {
-            parent_id: Number(id)
-        }
-    });
-    return choice;
+    try {
+        const choices = await prisma.choice.findMany({
+            where: {
+                parent_id: id
+            }
+        });
+
+        const choicesWithChildren = await Promise.all(choices.map(async (parentChoice) => {
+            const childChoices = await prisma.choice.findMany({
+                where: {
+                    parent_id: parentChoice.id
+                }
+            });
+            return {
+                parent: parentChoice.choice_content,
+                childChoices: childChoices
+            }
+        }));
+        console.log("-----4--4-4-4-4-d")
+        console.log(choicesWithChildren)
+
+        return choicesWithChildren;
+
+    } catch (error) {
+        return error;
+    }
 }
 
 exports.updateChoice = async (req, res) => {

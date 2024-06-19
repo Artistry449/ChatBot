@@ -116,7 +116,7 @@ exports.updateAnswer = async (req, res) => {
 }
 
 exports.deleteAnswer = async (req, res) => {
-    const id = parseInt(req.params.id, 10); // Ensure the id is an integer
+    const id = parseInt(req.params.id, 10);
 
     try {
         const answer = await prisma.answer.delete({
