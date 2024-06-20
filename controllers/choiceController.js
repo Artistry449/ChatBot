@@ -57,27 +57,60 @@ exports.createChoice = async (req, res) => {
 //     return choice;
 // }
 
+const getParentChoices = async (id) => {
+    const choices = await prisma.choice.findMany({
+        where: {
+            parent_id: id
+        }
+    });
+
+    const choicesWithChildren = await Promise.all(choices.map(async (parentChoice) => {
+        const childChoices = await prisma.choice.findMany({
+            where: {
+                parent_id: parentChoice.id
+            }
+        });
+        return {
+            parent: parentChoice.choice_content,
+            childChoices: childChoices
+        }
+    }));
+
+    return choicesWithChildren;
+}
+
+const getChildrenChoice = async (id) => {
+    const choice = await prisma.choice.findMany({
+        where: {
+            id: id
+        }
+    });
+
+    // const children = await prisma.choice.findMany({
+    //     where: {
+    //         parent_id: id
+    //     }
+    // });
+    const choicesWithChildren = await Promise.all(choice.map(async (parentChoice) => {
+        const childChoices = await prisma.choice.findMany({
+            where: {
+                parent_id: parentChoice.id
+            }
+        });
+        return {
+            parent: parentChoice.choice_content,
+            childChoices: childChoices
+        }
+    }));
+
+    return choicesWithChildren;
+}
+
 exports.getChoice = async (id) => {
 
     if (id === 1) {
         try {
-            const choices = await prisma.choice.findMany({
-                where: {
-                    parent_id: id
-                }
-            });
-
-            const choicesWithChildren = await Promise.all(choices.map(async (parentChoice) => {
-                const childChoices = await prisma.choice.findMany({
-                    where: {
-                        parent_id: parentChoice.id
-                    }
-                });
-                return {
-                    parent: parentChoice.choice_content,
-                    childChoices: childChoices
-                }
-            }));
+            const choicesWithChildren = await getParentChoices(id);
 
             return choicesWithChildren;
 
@@ -88,21 +121,9 @@ exports.getChoice = async (id) => {
     }
     else {
         try {
-            const choice = await prisma.choice.findUnique({
-                where: {
-                    id: id
-                }
-            });
-            console.log("---------")
-            console.log(choice);
+            const childrenChoice = await getChildrenChoice(id);
 
-            const children = await prisma.choice.findMany({
-                where: {
-                    parent_id: id
-                }
-            });
-
-            return { ...choice, children }
+            return childrenChoice;
         }
         catch (error) {
             return error;

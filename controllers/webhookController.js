@@ -56,6 +56,27 @@ const checkID = (id) => {
     return false;
 };
 
+const timers = new Map();
+const setReminder = (channel_id, channel) => {
+    if (timers.has(channel_id)) {
+        clearTimeout(timers.get(channel_id));
+    }
+
+    const timerId = setTimeout(() => {
+        sendMessage(channel, "Та хангалттай мэдээлэл авч чадсан уу?💥",
+            [
+                {
+                    text: "rating"
+                }
+            ],
+            "limebot");
+        timers.delete(channel_id);
+    }, 1 * 10 * 1000);
+
+    timers.set(channel_id, timerId);
+};
+
+
 exports.webhookHandler = async (req, res) => {
     let isBotIncluded = false;
 
@@ -64,9 +85,6 @@ exports.webhookHandler = async (req, res) => {
         const members = req.body.members;
 
         // console.log(req.body)
-
-        console.log("--------------");
-        console.log(req.body);
 
         for (let i = 0; i < members.length; i++) {
             if (members[i].user_id === "limebot") {
@@ -85,35 +103,41 @@ exports.webhookHandler = async (req, res) => {
 
             // Тухайн channel-ийг watch хийж эхэлсний дараа тухайн choice_id-аар баазаас контентоор үйлчлэх
             await watchChannel(channel).then(async () => {
-
+                const messages = channel.state.messages;
+                const last_message = messages[messages.length - 1];
                 // Channel дээр шинэ мессэж ирсэн, мөн уг шинэ мессэж нь "limebot" бот-оос өөр хэрэглэгч бичсэн үед ажиллах
-                if (req.body.user.id !== "limebot" && req.body.type === "message.new") {
+                if (req.body.user.id !== "limebot" && req.body.type === "message.new" && last_message.text !== "Ажилтантай холбогдох") {
                     // Гаднаас хариултыг нь авахыг хүсэж буй товчны id
                     const choice_id = Number(req.body.message.choice_id);
+
+                    // console.log("-----")
+                    // console.log(last_message.rating);
+
+                    if (last_message.rating && last_message.rating === true) {
+                        sendMessage(channel, "Үнэлгээ өгсөн таньд баярлалаа. Өдрийг сайхан өнгөрүүлээрэй 😇", [], "limebot");
+                    } else {
+                        setReminder(channel_id, channel);
+                    }
+
+                    // console.log(last_message.created_at);
+                    // console.log("--------");
+                    // console.log(new Date());
 
                     let isValid = checkID(choice_id);
 
                     if (isValid) {
-                        if (choice_id === 2) {
-                            sendMessage(channel, "Сайн байна уу, LIME оператор удахгүй таньтай холбогдох болно. Та хэлэх зүйлээ үлдээнэ үү.", [], "limebot");
-                        }
+                        // if (choice_id === 2) {
+                        //     sendMessage(channel, "Сайн байна уу, LIME оператор удахгүй таньтай холбогдох болно. Та хэлэх зүйлээ үлдээнэ үү.", [], "limebot");
+                        // }
                         // Ирсэн id-ийн харгалзах choice-ийг хайх
                         let choice = await controller.getChoice(choice_id);
 
-                        // if (encryptedMessage) {
-                        //     return res.status(200).json({
-                        //         data: encryptedMessage
-                        //     });
-                        // } else {
-                        //     return res.status(500).json({
-                        //         error: 'Encryption failed'
-                        //     });
-                        // }
-
+                        console.log("-----Choice------")
+                        console.log(choice);
+                        console.log("------ChildChoices");
+                        console.log(choice.childChoices);
                         // Хэрвээ хэрэглэгчийн сонгосон id-тай choice олдохгүй бол answer хүснэгтээс хайна
-                        // console.log("1.--------------")
-                        // console.log(choice);
-                        if (choice.children == false) {
+                        if (choice[0].childChoices == false) {
                             choice = await answerController.getAnswer(choice_id);
 
                             // Answer хүснэгтээс мөн олдохгүй бол 404 буцаах
@@ -128,55 +152,27 @@ exports.webhookHandler = async (req, res) => {
                             let result = [];
                             result.push(choice);
                             // result.push(parent_content);
-
-                            // const encryptedMessage = await encryptChat(choice)
-                            //     .then(encryptedMessage => {
-                            //         console.log('Encrypted Message:', encryptedMessage);
-                            //         return encryptedMessage;  // return the value here
-                            //     })
-                            //     .catch(error => {
-                            //         console.error('Encryption failed:', error);
-                            //         return null; // handle the error case by returning null
-                            //     });
-
-                            // const decryptedMessage = await decryptMessage(encryptedMessage);
-                            // console.log("-------------")
-                            // // console.log(decryptedMessage);
-                            // console.log(JSON.stringify(choice));
                             sendMessage(channel, "Sent message", [
-                                { bot_type: "limebot", text: JSON.stringify(result) }
+                                { text: JSON.stringify(result) }
                             ], "limebot");
 
-
-
-                            return res.status(200).json({
-                                status: "success",
-                                choice,
-                            });
+                            console.log("-----ANSWER-----");
+                            console.log(result);
+                            return res.status(200).json(choice);
                         }
                         // Олдсон үр дүнгийн сүүлд нь эцэг элементийг нь явуулах
                         // const parent_content = await controller.getParentChoice(choice_id);
                         // choice.push(parent_content);
 
-                        // const encryptedMessage = await encryptChat(choice)
-                        //     .then(encryptedMessage => {
-                        //         console.log('Encrypted Message:', encryptedMessage);
-                        //         return encryptedMessage;  // return the value here
-                        //     })
-                        //     .catch(error => {
-                        //         console.error('Encryption failed:', error);
-                        //         return null; // handle the error case by returning null
-                        //     });
-
-                        // const decryptedMessage = await decryptMessage(encryptedMessage);
-
                         // "limebot"-ийн id-аар channel-руу chat бичих
-                        // console.log(JSON.stringify(choice));
-                        sendMessage(channel, "Sent message", [
-                            { bot_type: "limebot", text: JSON.stringify(choice) },
-                        ], "limebot");
-                        console.log("-----3--3-3-3-3-3-")
-                        console.log(choice);
+                        sendMessage(channel, "Sent message",
+                            [
+                                {
+                                    text: JSON.stringify(choice)
+                                },
+                            ],
+                            "limebot"
+                        );
                         return res.status(200).json(choice);
                     };
                     return res.status(404).json({
@@ -184,11 +180,10 @@ exports.webhookHandler = async (req, res) => {
                         message: "Invalid id"
                     });
                 }
-                else {
-                    return res.status(400).json({
-                        status: "fail",
-                        message: "Invalid id"
-                    });
+                else if (req.body.user.id !== "limebot") {
+                    sendMessage(channel, "Сайн байна уу, LIME оператор удахгүй таньтай холбогдох болно. Та хэлэх зүйлээ үлдээнэ үү.", [], "limebot");
+
+                    return res.status(200).json();
                 }
             });
         }
