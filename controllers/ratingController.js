@@ -31,3 +31,14 @@ exports.createRating = async (req, res) => {
 
     return res.status(201).json(newRating);
 }
+
+exports.createRating = async (user_id, user_rating) => {
+    const newRating = await prisma.rating.create({
+        data: {
+            user_id,
+            rating: Number(user_rating)
+        }
+    });
+
+    return newRating;
+}

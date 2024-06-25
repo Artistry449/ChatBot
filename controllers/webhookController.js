@@ -2,6 +2,7 @@ const StreamChat = require("stream-chat").StreamChat;
 
 const controller = require("./choiceController");
 const answerController = require("./answerController");
+const ratingController = require("./../controllers/ratingController");
 
 const api_key = process.env.api_key
 const secret = process.env.secret
@@ -71,7 +72,7 @@ const setReminder = (channel_id, channel) => {
             ],
             "limebot");
         timers.delete(channel_id);
-    }, 1 * 10 * 1000);
+    }, 10 * 60 * 1000);
 
     timers.set(channel_id, timerId);
 };
@@ -83,8 +84,6 @@ exports.webhookHandler = async (req, res) => {
     if (req.body.members) {
 
         const members = req.body.members;
-
-        // console.log(req.body)
 
         for (let i = 0; i < members.length; i++) {
             if (members[i].user_id === "limebot") {
@@ -110,18 +109,26 @@ exports.webhookHandler = async (req, res) => {
                     // Гаднаас хариултыг нь авахыг хүсэж буй товчны id
                     const choice_id = Number(req.body.message.choice_id);
 
-                    // console.log("-----")
-                    // console.log(last_message.rating);
-
                     if (last_message.rating && last_message.rating === true) {
-                        sendMessage(channel, "Үнэлгээ өгсөн таньд баярлалаа. Өдрийг сайхан өнгөрүүлээрэй 😇", [], "limebot");
+
+                        const user_id = last_message.user.id;
+                        const user_rating = last_message.text;
+
+                        console.log(last_message);
+                        console.log("-----user rating:\n");
+                        console.log(user_rating);
+
+                        try {
+                            await ratingController.createRating(user_id, user_rating)
+                            sendMessage(channel, "Үнэлгээ өгсөн таньд баярлалаа. Өдрийг сайхан өнгөрүүлээрэй 😇", [], "limebot");
+                        }
+                        catch (error) {
+                            console.log(error);
+                        }
+
                     } else {
                         setReminder(channel_id, channel);
                     }
-
-                    // console.log(last_message.created_at);
-                    // console.log("--------");
-                    // console.log(new Date());
 
                     let isValid = checkID(choice_id);
 
@@ -132,10 +139,6 @@ exports.webhookHandler = async (req, res) => {
                         // Ирсэн id-ийн харгалзах choice-ийг хайх
                         let choice = await controller.getChoice(choice_id);
 
-                        console.log("-----Choice------")
-                        console.log(choice);
-                        console.log("------ChildChoices");
-                        console.log(choice.childChoices);
                         // Хэрвээ хэрэглэгчийн сонгосон id-тай choice олдохгүй бол answer хүснэгтээс хайна
                         if (choice[0].childChoices == false) {
                             choice = await answerController.getAnswer(choice_id);
@@ -149,15 +152,13 @@ exports.webhookHandler = async (req, res) => {
                             }
                             // Олдсон үр дүнгийн сүүлд нь эцэг элементийг нь явуулах
                             // const parent_content = await controller.getParentChoice(choice_id);
-                            let result = [];
-                            result.push(choice);
+                            // let result = [];
+                            // result.push(choice);
                             // result.push(parent_content);
                             sendMessage(channel, "Sent message", [
-                                { text: JSON.stringify(result) }
+                                { text: JSON.stringify(choice) }
                             ], "limebot");
 
-                            console.log("-----ANSWER-----");
-                            console.log(result);
                             return res.status(200).json(choice);
                         }
                         // Олдсон үр дүнгийн сүүлд нь эцэг элементийг нь явуулах
