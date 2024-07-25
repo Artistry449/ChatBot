@@ -64,7 +64,7 @@ const setReminder = (channel_id, channel) => {
     }
 
     const timerId = setTimeout(() => {
-        sendMessage(channel, "Та хангалттай мэдээлэл авч чадсан уу?💥",
+        sendMessage(channel, "Таньд үйлчилгээ авахад хэр хялбар байсан бэ?",
             [
                 {
                     text: "rating"
@@ -72,7 +72,7 @@ const setReminder = (channel_id, channel) => {
             ],
             "limebot");
         timers.delete(channel_id);
-    }, 10 * 60 * 1000);
+    }, 1 * 60 * 1000);
 
     timers.set(channel_id, timerId);
 };
