@@ -71,13 +71,31 @@ exports.createAnswer = async (req, res) => {
 exports.getAnswer = async (id) => {
 
     try {
-        const answer = await prisma.answer.findFirst({
+        // const answer = await prisma.answer.findFirst({
+        //     where: {
+        //         choice_id: Number(id)
+        //     }
+        // });
+
+        const choices = await prisma.choice.findMany({
             where: {
-                choice_id: Number(id)
+                id: id
             }
         });
 
-        return answer;
+        const choicesWithChildren = await Promise.all(choices.map(async (parentChoice) => {
+            const childAnswers = await prisma.answer.findMany({
+                where: {
+                    choice_id: parentChoice.id
+                }
+            });
+            return {
+                parent: parentChoice.choice_content,
+                childAnswers: childAnswers
+            }
+        }));
+
+        return choicesWithChildren;
 
     } catch (error) {
         console.error("Хариултыг авахад алдаа гарлаа:", error);

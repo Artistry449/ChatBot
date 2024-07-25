@@ -4,7 +4,7 @@ const router = express.Router();
 
 const choiceController = require("../controllers/choiceController");
 
-router.param("id", choiceController.checkID);
+// router.param("id", choiceController.checkID);
 
 router.route("/")
     .get(choiceController.getChoices)
@@ -12,6 +12,7 @@ router.route("/")
 
 router.route("/:id")
     .get(choiceController.getChoice)
+    // .post(choiceController.getChoiceWithContent)
     .patch(choiceController.updateChoice)
     .delete(choiceController.deleteChoice)
 

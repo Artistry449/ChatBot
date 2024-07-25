@@ -1,12 +1,15 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require('cors');
 
-// const choiceRouter = require("./routes/choiceRoutes");
-// const answerRouter = require("./routes/answerRoutes");
+const choiceRouter = require("./routes/choiceRoutes");
+const answerRouter = require("./routes/answerRoutes");
 // const userRouter = require("./routes/userRoutes");
+const ratingRouter = require("./routes/ratingRoutes");
 const webhookRouter = require("./routes/webhookRoutes");
 
 const app = express();
+app.use(cors());
 
 // MIDDLEWARES
 if (process.env.NODE_ENV === "development") {
@@ -15,8 +18,9 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.json());
 
 // ROUTES
-// app.use("/api/v1/choice", choiceRouter);
+app.use("/api/v1/choice", choiceRouter);
 // app.use("/api/v1/answer", answerRouter);
+// app.use("/api/v1/rating", ratingRouter)
 // app.use("/api/v1/user", userRouter);
 app.use("/webhook", webhookRouter);
 

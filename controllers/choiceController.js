@@ -1,30 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-exports.checkID = async (req, res, next, val) => {
-
-    if (typeof (val * 1) !== Number) {
-        return res.status(400).json({
-            status: "fail",
-            message: "Invalid id"
-        });
-    }
-
-    // const choice = await prisma.choice.findUnique({
-    //     where: {
-    //         id: Number(val)
-    //     }
-    // });
-
-    // if (!choice) {
-    //     return res.status(404).json({
-    //         status: "fail",
-    //         message: "Invalid id"
-    //     });
-    // }
-    next();
-}
-
 exports.getChoices = async (req, res) => {
     const choices = await prisma.choice.findMany();
 
@@ -35,6 +11,7 @@ exports.getChoices = async (req, res) => {
         }
     });
 }
+
 
 exports.createChoice = async (req, res) => {
     const { choice_content, parent_id } = req.body;
@@ -69,15 +46,97 @@ exports.createChoice = async (req, res) => {
 //     });
 // }
 
-exports.getChoice = async (id) => {
-    // const id = req.params.id;
-    const choice = await prisma.choice.findMany({
+// --Old version
+// exports.getChoice = async (id) => {
+//     // const id = req.params.id;
+//     const choice = await prisma.choice.findMany({
+//         where: {
+//             parent_id: Number(id)
+//         }
+//     });
+//     return choice;
+// }
+
+const getParentChoices = async (id) => {
+    const choices = await prisma.choice.findMany({
         where: {
-            parent_id: Number(id)
+            parent_id: id
         }
     });
-    return choice;
+
+    const choicesWithChildren = await Promise.all(choices.map(async (parentChoice) => {
+        const childChoices = await prisma.choice.findMany({
+            where: {
+                parent_id: parentChoice.id
+            }
+        });
+        return {
+            parent: parentChoice.choice_content,
+            childChoices: childChoices
+        }
+    }));
+
+    return choicesWithChildren;
 }
+
+const getChildrenChoice = async (id) => {
+    const choice = await prisma.choice.findMany({
+        where: {
+            id: id
+        }
+    });
+
+    // const children = await prisma.choice.findMany({
+    //     where: {
+    //         parent_id: id
+    //     }
+    // });
+    const choicesWithChildren = await Promise.all(choice.map(async (parentChoice) => {
+        const childChoices = await prisma.choice.findMany({
+            where: {
+                parent_id: parentChoice.id
+            }
+        });
+        return {
+            parent: parentChoice.choice_content,
+            childChoices: childChoices
+        }
+    }));
+
+    return choicesWithChildren;
+}
+
+exports.getChoice = async (id) => {
+
+    if (id === 1) {
+        try {
+            const choicesWithChildren = await getParentChoices(id);
+
+            return choicesWithChildren;
+
+        } catch (error) {
+            return error;
+        }
+
+    }
+    else {
+        try {
+            const childrenChoice = await getChildrenChoice(id);
+
+            return childrenChoice;
+        }
+        catch (error) {
+            return error;
+        }
+    }
+
+}
+
+// exports.getChoiceWithContent = async (req, res) => {
+//     const id = Number(req.params.id)
+
+
+// }
 
 exports.updateChoice = async (req, res) => {
     const id = req.params.id;
